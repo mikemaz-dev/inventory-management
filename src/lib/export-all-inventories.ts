@@ -21,7 +21,6 @@ export function exportAllInventories(
 				'Inventory Category': inv.category,
 				'Inventory Owner': inv.owner?.email || ''
 			})
-
 			return
 		}
 
@@ -38,12 +37,14 @@ export function exportAllInventories(
 			}
 
 			item.itemFieldValues?.forEach(fv => {
-				if (fv.valueString) {
-					row[fv.field.title] = fv.valueString
-				} else if (fv.valueNumber !== null) {
-					row[fv.field.title] = fv.valueNumber
-				} else if (fv.valueBoolean !== null) {
-					row[fv.field.title] = fv.valueBoolean
+				if (fv.field?.title) {
+					if (fv.valueString) {
+						row[fv.field.title] = fv.valueString
+					} else if (fv.valueNumber !== null && fv.valueNumber !== undefined) {
+						row[fv.field.title] = fv.valueNumber
+					} else if (fv.valueBoolean !== null && fv.valueBoolean !== undefined) {
+						row[fv.field.title] = fv.valueBoolean
+					}
 				}
 			})
 
@@ -56,10 +57,10 @@ export function exportAllInventories(
 
 	XLSX.utils.book_append_sheet(workbook, worksheet, 'Inventories')
 
-	const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
+	const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' })
 
 	const blob = new Blob([excelBuffer], {
-		type: 'application/octet-stream'
+		type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 	})
 
 	saveAs(blob, fileName)

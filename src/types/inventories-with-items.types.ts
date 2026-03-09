@@ -1,6 +1,5 @@
 import { IInventory, IItem } from './inventory.types'
 
-export interface IInventoriesWithItems {
-	inventories: IInventory[]
+export interface IInventoriesWithItems extends IInventory {
 	items: IItem[]
 }
