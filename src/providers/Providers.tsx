@@ -29,7 +29,14 @@ export function Providers({ children }: { children: ReactNode }) {
 		<QueryClientProvider client={queryClient}>
 			<Provider store={store}>
 				<AuthProvider>
-					<ThemeProvider>{children}</ThemeProvider>
+					<ThemeProvider
+						attribute='class'
+						defaultTheme='system'
+						enableSystem
+						disableTransitionOnChange
+					>
+						{children}
+					</ThemeProvider>
 				</AuthProvider>
 				<Toaster />
 			</Provider>
