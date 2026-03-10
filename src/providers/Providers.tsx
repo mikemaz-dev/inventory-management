@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast'
 import { Provider } from 'react-redux'
 
 import { AuthProvider } from './AuthProvider'
+import { ThemeProvider } from './ThemeProvider'
 import { store } from '@/store'
 
 export function Providers({ children }: { children: ReactNode }) {
@@ -27,7 +28,9 @@ export function Providers({ children }: { children: ReactNode }) {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<Provider store={store}>
-				<AuthProvider>{children}</AuthProvider>
+				<AuthProvider>
+					<ThemeProvider>{children}</ThemeProvider>
+				</AuthProvider>
 				<Toaster />
 			</Provider>
 		</QueryClientProvider>
