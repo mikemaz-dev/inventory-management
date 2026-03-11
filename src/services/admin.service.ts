@@ -7,19 +7,19 @@ export class AdminService {
 
 	async getUsers(): Promise<IUser[]> {
 		const { data } = await axiosInstance.get(this.BASE)
-		return data
+		return data.data
 	}
 
 	async blockUser(id: string, isBlocked: boolean) {
 		const { data } = await axiosInstance.patch(`${this.BASE}/${id}/block`, { isBlocked })
 
-		return data
+		return data.data
 	}
 
 	async changeRole(id: string, role: RoleEnum) {
 		const { data } = await axiosInstance.patch(`${this.BASE}/${id}/role`, { role })
 
-		return data
+		return data.data
 	}
 
 	async deleteUser(id: string) {
