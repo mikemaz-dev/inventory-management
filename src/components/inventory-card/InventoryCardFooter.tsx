@@ -22,7 +22,7 @@ export function InventoryCardFooter({ inventory }: { inventory: IInventory }) {
 			<div className='flex items-center gap-2.5'>
 				<Avatar className='border-border size-6 border'>
 					<AvatarFallback className='bg-secondary text-secondary-foreground text-[10px]'>
-						{getInitials(inventory.owner?.password || inventory.owner?.email)}
+						{getInitials(inventory.owner?.email)}
 					</AvatarFallback>
 				</Avatar>
 				<span className='text-muted-foreground max-w-30 truncate text-xs'>
