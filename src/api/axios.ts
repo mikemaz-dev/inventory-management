@@ -2,7 +2,13 @@ import axios, { type AxiosError, type AxiosInstance, type AxiosRequestConfig } f
 import Cookies from 'js-cookie'
 
 import { API_URL } from '@/constants/constants'
+
+import { PUBLIC_PAGES } from '@/config/public.config'
+
+import { clearAuthData } from '@/store/auth/auth.slice'
+
 import { authService } from '@/services/auth.service'
+import { store } from '@/store'
 import { EnumTokens } from '@/types/auth.types'
 
 const axiosConfig: AxiosRequestConfig = {
@@ -49,6 +55,23 @@ axiosInstance.interceptors.response.use(
 				authService.logout()
 				return Promise.reject(refreshError)
 			}
+		}
+
+		return Promise.reject(error)
+	}
+)
+
+axiosInstance.interceptors.response.use(
+	response => response,
+
+	error => {
+		if (error.response?.status === 403) {
+			store.dispatch(clearAuthData())
+
+			Cookies.remove(EnumTokens.ACCESS_TOKEN)
+			Cookies.remove(EnumTokens.REFRESH_TOKEN)
+
+			window.location.href = PUBLIC_PAGES.LOGIN
 		}
 
 		return Promise.reject(error)
