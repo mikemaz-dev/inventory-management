@@ -1,103 +1,67 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue
-} from '@/components/ui/select'
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow
-} from '@/components/ui/table'
+import { useState } from 'react'
 
-import { useBlockUser } from '@/hooks/admin/useBlockUser'
-import { useChangeRole } from '@/hooks/admin/useChangeRole'
-import { useDeleteUser } from '@/hooks/admin/useDeleteUser'
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
-import { IUser, RoleEnum } from '@/types/user.types'
+import { UsersTableRow } from './UsersTableRow'
+import { UsersTableToolbar } from './UsersTableToolbar'
+import { useUsersActions } from './useUsersActions'
+import { useUsersSelection } from './useUsersSelection'
+import { filterUsers } from '@/lib/filterUsers'
+import type { IUser } from '@/types/user.types'
 
 interface Props {
 	users: IUser[]
 }
 
 export function UsersTable({ users }: Props) {
-	const blockMutation = useBlockUser()
-	const roleMutation = useChangeRole()
-	const deleteMutation = useDeleteUser()
+	const [search, setSearch] = useState('')
+
+	const filteredUsers = filterUsers(users, search)
+
+	const { selectedIds, toggle } = useUsersSelection()
+
+	const { block, unblock, remove, changeRole } = useUsersActions()
+
+	const selectedArray = Array.from(selectedIds)
 
 	return (
-		<Table>
-			<TableHeader>
-				<TableRow>
-					<TableHead>Email</TableHead>
-					<TableHead>Username</TableHead>
-					<TableHead>Role</TableHead>
-					<TableHead>Status</TableHead>
-					<TableHead>Actions</TableHead>
-				</TableRow>
-			</TableHeader>
+		<div className='space-y-4'>
+			<UsersTableToolbar
+				search={search}
+				onSearch={setSearch}
+				selectedCount={selectedIds.size}
+				onBlock={() => block(selectedArray)}
+				onUnblock={() => unblock(selectedArray)}
+				onDelete={() => remove(selectedArray)}
+				onRoleChange={role => changeRole(selectedArray, role)}
+			/>
 
-			<TableBody>
-				{users.map(user => (
-					<TableRow key={user.id}>
-						<TableCell>{user.email}</TableCell>
+			<div className='rounded-md border'>
+				<Table>
+					<TableHeader>
+						<TableRow>
+							<TableHead />
+							<TableHead>Email</TableHead>
+							<TableHead>Username</TableHead>
+							<TableHead>Role</TableHead>
+							<TableHead>Status</TableHead>
+						</TableRow>
+					</TableHeader>
 
-						<TableCell>{user.username}</TableCell>
-
-						<TableCell>
-							<Select
-								defaultValue={user.role}
-								onValueChange={role =>
-									roleMutation.mutate({
-										id: user.id,
-										role: role as RoleEnum
-									})
-								}
-							>
-								<SelectTrigger className='w-30'>
-									<SelectValue />
-								</SelectTrigger>
-
-								<SelectContent>
-									<SelectItem value='USER'>USER</SelectItem>
-
-									<SelectItem value='ADMIN'>ADMIN</SelectItem>
-								</SelectContent>
-							</Select>
-						</TableCell>
-
-						<TableCell>
-							<Button
-								variant={user.isBlocked ? 'secondary' : 'destructive'}
-								onClick={() =>
-									blockMutation.mutate({
-										id: user.id,
-										isBlocked: !user.isBlocked
-									})
-								}
-							>
-								{user.isBlocked ? 'Unblock' : 'Block'}
-							</Button>
-						</TableCell>
-
-						<TableCell>
-							<Button
-								variant='destructive'
-								onClick={() => deleteMutation.mutate(user.id)}
-							>
-								Delete
-							</Button>
-						</TableCell>
-					</TableRow>
-				))}
-			</TableBody>
-		</Table>
+					<TableBody>
+						{filteredUsers.map(user => (
+							<UsersTableRow
+								key={user.id}
+								user={user}
+								selected={selectedIds.has(user.id)}
+								onSelect={checked => toggle(user.id, checked)}
+							/>
+						))}
+					</TableBody>
+				</Table>
+			</div>
+		</div>
 	)
 }
