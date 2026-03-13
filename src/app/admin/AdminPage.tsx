@@ -1,5 +1,9 @@
 'use client'
 
+import { BackToDashboardButton } from '@/components/back-to-dashboard-button/BackToDashboardButton'
+import { ThemeToggle } from '@/components/theme-toggle/ThemeToggle'
+import { LogoutButton } from '@/components/ui/logout-button'
+
 import { useUsers } from '@/hooks/admin/useUsers'
 
 import { UsersTable } from './UsersTable'
@@ -10,8 +14,16 @@ export default function AdminPage() {
 	if (isLoading) return <div>Loading...</div>
 
 	return (
-		<div className='p-8'>
-			<h1 className='mb-6 text-2xl font-bold'>Admin Panel</h1>
+		<div className='space-y-6 p-8'>
+			<div className='flex items-center justify-between'>
+				<h1 className='text-2xl font-bold'>Admin Panel</h1>
+				<div className='flex items-center gap-2'>
+					<ThemeToggle />
+					<LogoutButton />
+				</div>
+			</div>
+
+			<BackToDashboardButton />
 
 			<UsersTable users={data ?? []} />
 		</div>

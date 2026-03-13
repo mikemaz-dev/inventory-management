@@ -1,13 +1,11 @@
 'use client'
 
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 
+import { BackToDashboardButton } from '@/components/back-to-dashboard-button/BackToDashboardButton'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-
-import { PUBLIC_PAGES } from '@/config/public.config'
 
 import { useExportAllInventories } from '@/hooks/useExportAllInventories'
 
@@ -18,21 +16,13 @@ import { useGetInventoryById } from './useGetInventoryById'
 import { generateInventoryCustomId } from '@/lib/generate-inventory-custom-id'
 
 export function InventoryPage({ inventoryId }: { inventoryId: string }) {
-	const router = useRouter()
-
 	const { inventory } = useGetInventoryById({ inventoryId })
 	const { exportAll, loading } = useExportAllInventories()
 
 	return (
 		<div className='grid grid-rows-1 gap-10 p-10'>
 			<div className='flex flex-col gap-4'>
-				<Button
-					variant='outline'
-					className='w-fit'
-					onClick={() => router.push(PUBLIC_PAGES.DASHBOARD)}
-				>
-					Back to Dashboard
-				</Button>
+				<BackToDashboardButton />
 
 				<div className='flex gap-2'>
 					<h1 className='text-5xl font-semibold tracking-tight text-balance'>{inventory?.title}</h1>
