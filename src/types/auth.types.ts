@@ -18,3 +18,10 @@ export interface IFormData {
 	password: string
 	name?: string
 }
+
+export interface IAuthData {
+	username?: string
+	email: string
+	password: string
+}
+

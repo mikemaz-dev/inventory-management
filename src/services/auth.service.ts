@@ -4,9 +4,8 @@ import { clearAuthData, setAuthData } from '@/store/auth/auth.slice'
 
 import { axiosClassic } from '@/api/axios'
 
-import { IAuthData } from '@/app/auth/form/auth.form'
 import { store } from '@/store'
-import { EnumTokens, type IAuthResponse, type TAuthType } from '@/types/auth.types'
+import { EnumTokens, IAuthData, type IAuthResponse, type TAuthType } from '@/types/auth.types'
 
 export class AuthService {
 	private BASE = '/auth'
