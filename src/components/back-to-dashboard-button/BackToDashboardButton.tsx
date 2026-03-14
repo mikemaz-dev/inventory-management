@@ -1,5 +1,6 @@
 'use client'
 
+import { ChevronLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 import { PUBLIC_PAGES } from '@/config/public.config'
@@ -11,10 +12,11 @@ export function BackToDashboardButton() {
 
 	return (
 		<Button
-			variant='outline'
-			className='w-fit'
+			variant='ghost'
+			className='flex w-fit items-center gap-3'
 			onClick={() => router.push(PUBLIC_PAGES.DASHBOARD)}
 		>
+			<ChevronLeft size='21' />
 			Back to Dashboard
 		</Button>
 	)

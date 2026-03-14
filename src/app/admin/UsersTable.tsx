@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 
+import { Checkbox } from '@/components/ui/checkbox'
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 import { UsersTableRow } from './UsersTableRow'
@@ -61,10 +62,9 @@ export function UsersTable({ users }: Props) {
 					<TableHeader>
 						<TableRow>
 							<TableHead>
-								<input
-									type='checkbox'
+								<Checkbox
 									checked={allSelected}
-									onChange={e => handleSelectAll(e.target.checked)}
+									onCheckedChange={handleSelectAll}
 								/>
 							</TableHead>
 							<TableHead>Email</TableHead>
