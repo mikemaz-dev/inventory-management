@@ -26,6 +26,7 @@ export function useUsersSelection() {
 
 	return {
 		selectedIds,
+		setSelectedIds,
 		selectAll,
 		clear,
 		toggle

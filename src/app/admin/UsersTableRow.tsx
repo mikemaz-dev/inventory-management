@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { TableCell, TableRow } from '@/components/ui/table'
 
+import { cn } from '@/lib/utils'
 import type { IUser } from '@/types/user.types'
 
 interface Props {
@@ -20,13 +21,17 @@ export function UsersTableRow({ user, selected, onSelect }: Props) {
 				/>
 			</TableCell>
 
-			<TableCell>{user.email}</TableCell>
-			<TableCell>{user.username}</TableCell>
-			<TableCell>
+			<TableCell className={cn(user.isBlocked && 'line-through opacity-65')}>
+				{user.email}
+			</TableCell>
+			<TableCell className={cn(user.isBlocked && 'line-through opacity-65')}>
+				{user.username}
+			</TableCell>
+			<TableCell className={cn(user.isBlocked && 'line-through opacity-65')}>
 				<Badge variant='outline'>{user.role}</Badge>
 			</TableCell>
 
-			<TableCell>
+			<TableCell className={cn(user.isBlocked && 'line-through opacity-65')}>
 				<Badge variant={user.isBlocked ? 'destructive' : 'default'}>
 					{user.isBlocked ? 'Blocked' : 'Active'}
 				</Badge>

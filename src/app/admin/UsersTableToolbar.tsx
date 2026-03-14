@@ -15,6 +15,10 @@ interface Props {
 	search: string
 	onSearch: (v: string) => void
 	selectedCount: number
+	allSelected: boolean
+	onSelectAll: (checked: boolean) => void
+	hasBlocked: boolean
+	hasUnblocked: boolean
 	onBlock: () => void
 	onUnblock: () => void
 	onDelete: () => void
@@ -25,6 +29,10 @@ export function UsersTableToolbar({
 	search,
 	onSearch,
 	selectedCount,
+	allSelected,
+	onSelectAll,
+	hasBlocked,
+	hasUnblocked,
 	onBlock,
 	onUnblock,
 	onDelete,
@@ -43,32 +51,43 @@ export function UsersTableToolbar({
 				<div className='flex items-center gap-2'>
 					<Badge variant='secondary'>{selectedCount} selected</Badge>
 
+					<Button
+						variant='outline'
+						size='sm'
+						onClick={() => onSelectAll(!allSelected)}
+					>
+						{allSelected ? 'Deselect All' : 'Select All'}
+					</Button>
+
 					<Select onValueChange={role => onRoleChange(role as RoleEnum)}>
 						<SelectTrigger className='w-32'>
 							<SelectValue placeholder='Change role' />
 						</SelectTrigger>
-
 						<SelectContent>
 							<SelectItem value='USER'>USER</SelectItem>
 							<SelectItem value='ADMIN'>ADMIN</SelectItem>
 						</SelectContent>
 					</Select>
 
-					<Button
-						variant='destructive'
-						size='sm'
-						onClick={onBlock}
-					>
-						Block
-					</Button>
+					{hasUnblocked && (
+						<Button
+							variant='destructive'
+							size='sm'
+							onClick={onBlock}
+						>
+							Block
+						</Button>
+					)}
 
-					<Button
-						variant='secondary'
-						size='sm'
-						onClick={onUnblock}
-					>
-						Unblock
-					</Button>
+					{hasBlocked && (
+						<Button
+							variant='secondary'
+							size='sm'
+							onClick={onUnblock}
+						>
+							Unblock
+						</Button>
+					)}
 
 					<Button
 						variant='destructive'

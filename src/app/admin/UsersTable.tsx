@@ -20,11 +20,25 @@ export function UsersTable({ users }: Props) {
 
 	const filteredUsers = filterUsers(users, search)
 
-	const { selectedIds, toggle } = useUsersSelection()
+	const { selectedIds, toggle, setSelectedIds } = useUsersSelection()
 
 	const { block, unblock, remove, changeRole } = useUsersActions()
 
 	const selectedArray = Array.from(selectedIds)
+
+	const selectedUsers = filteredUsers.filter(u => selectedIds.has(u.id))
+	const hasBlocked = selectedUsers.some(u => u.isBlocked)
+	const hasUnblocked = selectedUsers.some(u => !u.isBlocked)
+
+	const allSelected = filteredUsers.length > 0 && filteredUsers.every(u => selectedIds.has(u.id))
+
+	const handleSelectAll = (checked: boolean) => {
+		if (checked) {
+			setSelectedIds(new Set(filteredUsers.map(u => u.id)))
+		} else {
+			setSelectedIds(new Set())
+		}
+	}
 
 	return (
 		<div className='space-y-4'>
@@ -32,6 +46,10 @@ export function UsersTable({ users }: Props) {
 				search={search}
 				onSearch={setSearch}
 				selectedCount={selectedIds.size}
+				allSelected={allSelected}
+				onSelectAll={handleSelectAll}
+				hasBlocked={hasBlocked}
+				hasUnblocked={hasUnblocked}
 				onBlock={() => block(selectedArray)}
 				onUnblock={() => unblock(selectedArray)}
 				onDelete={() => remove(selectedArray)}
@@ -42,7 +60,13 @@ export function UsersTable({ users }: Props) {
 				<Table>
 					<TableHeader>
 						<TableRow>
-							<TableHead />
+							<TableHead>
+								<input
+									type='checkbox'
+									checked={allSelected}
+									onChange={e => handleSelectAll(e.target.checked)}
+								/>
+							</TableHead>
 							<TableHead>Email</TableHead>
 							<TableHead>Username</TableHead>
 							<TableHead>Role</TableHead>
