@@ -1,3 +1,5 @@
+'use client'
+
 import { useBlockUser } from '@/hooks/admin/useBlockUser'
 import { useChangeRole } from '@/hooks/admin/useChangeRole'
 import { useDeleteUser } from '@/hooks/admin/useDeleteUser'
