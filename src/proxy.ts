@@ -4,7 +4,6 @@ import { PUBLIC_PAGES } from './config/public.config'
 import { EnumTokens } from './types/auth.types'
 
 const PUBLIC_PATHS = [PUBLIC_PAGES.LOGIN, PUBLIC_PAGES.REGISTER]
-const ADMIN_PATHS = [PUBLIC_PAGES.ADMIN]
 
 export function proxy(request: NextRequest) {
 	const { pathname } = request.nextUrl
@@ -15,10 +14,13 @@ export function proxy(request: NextRequest) {
 
 	const isDashboard = pathname.startsWith(PUBLIC_PAGES.DASHBOARD)
 
-	const isAdminPath = ADMIN_PATHS.some(path => pathname.startsWith(path))
+	if (!refreshToken) {
+		if (isPublicPath) {
+			return NextResponse.next()
+		}
 
-	if (!refreshToken && (isDashboard || isAdminPath)) {
 		const loginUrl = new URL(PUBLIC_PAGES.LOGIN, request.url)
+		if (isDashboard) loginUrl.searchParams.set('form', pathname)
 		return NextResponse.redirect(loginUrl)
 	}
 

@@ -13,10 +13,10 @@ export function BackToDashboardButton() {
 	return (
 		<Button
 			variant='ghost'
-			className='flex w-fit items-center gap-3'
+			className='flex w-fit items-center gap-1.5'
 			onClick={() => router.push(PUBLIC_PAGES.DASHBOARD)}
 		>
-			<ChevronLeft size='21' />
+			<ChevronLeft size='22' />
 			Back to Dashboard
 		</Button>
 	)

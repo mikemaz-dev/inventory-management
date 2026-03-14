@@ -16,14 +16,15 @@ export default function AdminPage() {
 	return (
 		<div className='space-y-6 p-8'>
 			<div className='flex items-center justify-between'>
-				<h1 className='text-2xl font-bold'>Admin Panel</h1>
+				<div className='flex flex-col gap-2'>
+					<BackToDashboardButton />
+					<h1 className='text-2xl font-bold'>Admin Panel</h1>
+				</div>
 				<div className='flex items-center gap-2'>
 					<ThemeToggle />
 					<LogoutButton />
 				</div>
 			</div>
-
-			<BackToDashboardButton />
 
 			<UsersTable users={data ?? []} />
 		</div>
