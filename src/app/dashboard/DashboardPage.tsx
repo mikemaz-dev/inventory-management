@@ -2,9 +2,10 @@
 
 import { Loader2 } from 'lucide-react'
 
-import { NoInventoryPage } from '@/components/NoInventory/NoInventoryPage'
 import { InventoryCard } from '@/components/inventory-card/InventoryCard'
 import { CreateInventoryModal } from '@/components/modals/CreateInventoryModal'
+import { NoInventoryPage } from '@/components/no-inventory/NoInventoryPage'
+import { SalesforceMenuItem } from '@/components/salesforce-connect/SalesforceConnectButton'
 import { ThemeToggle } from '@/components/theme-toggle/ThemeToggle'
 import { LogoutButton } from '@/components/ui/logout-button'
 
@@ -45,6 +46,7 @@ export function DashboardPage() {
 
 				<div className='flex items-center gap-3'>
 					<ThemeToggle />
+					<SalesforceMenuItem />
 					<LogoutButton />
 				</div>
 			</div>

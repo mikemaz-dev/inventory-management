@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Controller } from 'react-hook-form'
 
-import { useCreateInventory } from '../NoInventory/useCreateInventory'
+import { useCreateInventory } from '../no-inventory/useCreateInventory'
 import { Button } from '../ui/button'
 import {
 	Dialog,
@@ -125,7 +125,7 @@ export function CreateInventoryModal() {
 						name='isPublic'
 						control={control}
 						render={({ field }) => (
-							<Field className='flex flex-row items-center justify-between rounded-lg border p-4 mt-4'>
+							<Field className='mt-4 flex flex-row items-center justify-between rounded-lg border p-4'>
 								<div className='space-y-1'>
 									<Label htmlFor='isPublic'>Public inventory</Label>
 									<p className='text-muted-foreground text-sm'>
