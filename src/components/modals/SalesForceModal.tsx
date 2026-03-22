@@ -32,9 +32,6 @@ export function SalesforceModal({ open, setOpen }: Props) {
 			open={open}
 			onOpenChange={setOpen}
 		>
-			<DialogTrigger asChild>
-				<Button>Connect Salesforce</Button>
-			</DialogTrigger>
 
 			<DialogContent>
 				<form onSubmit={handleSubmit(onSubmit)}>

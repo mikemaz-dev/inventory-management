@@ -12,8 +12,8 @@ export function SalesforceMenuItem() {
 	return (
 		<>
 			<Button
-				variant='ghost'
-				className='w-full justify-start'
+				variant='outline'
+				className='w-max justify-start'
 				onClick={() => setOpen(true)}
 			>
 				Connect Salesforce
