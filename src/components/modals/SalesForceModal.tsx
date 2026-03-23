@@ -1,127 +1,60 @@
 'use client'
 
-import { Controller } from 'react-hook-form'
+import { useMutation } from '@tanstack/react-query'
+import { useState } from 'react'
 
-import { useSalesForceForm } from '@/hooks/integrations/useSalesForceForm'
+import { axiosInstance } from '@/api/axios'
 
-import { Button } from '../ui/button'
-import {
-	Dialog,
-	DialogClose,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger
-} from '../ui/dialog'
-import { Field, FieldError, FieldGroup } from '../ui/field'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
-
-interface Props {
-	open: boolean
-	setOpen: (open: boolean) => void
+interface ISalesforcePayload {
+	accountName: string
+	firstName: string
+	lastName: string
+	email: string
 }
 
-export function SalesforceModal({ open, setOpen }: Props) {
-	const { control, handleSubmit, onSubmit, isPending } = useSalesForceForm(() => setOpen(false))
+export function useSalesForceForm(onSuccess: () => void) {
+	const [isPending, setIsPending] = useState(false)
 
-	return (
-		<Dialog
-			open={open}
-			onOpenChange={setOpen}
-		>
+	const connectMutation = useMutation({
+		mutationKey: ['salesforce-connect'],
+		mutationFn: async (data: ISalesforcePayload) => {
+			const res = await axiosInstance.post('/integrations/salesforce/user', data)
+			return res.data
+		},
+		onSuccess: () => {
+			setIsPending(false)
+			onSuccess()
+		},
+		onError: () => setIsPending(false)
+	})
 
-			<DialogContent>
-				<form onSubmit={handleSubmit(onSubmit)}>
-					<DialogHeader className='mb-4'>
-						<DialogTitle>Connect Salesforce</DialogTitle>
-						<DialogDescription>
-							Fill in the details to connect your Salesforce account.
-						</DialogDescription>
-					</DialogHeader>
+	const onSubmit = async (data: ISalesforcePayload) => {
+		setIsPending(true)
 
-					<FieldGroup>
-						<Controller
-							name='accountName'
-							control={control}
-							render={({ field, fieldState }) => (
-								<Field data-invalid={fieldState.invalid}>
-									<Label htmlFor='accountName'>Account Name</Label>
-									<Input
-										{...field}
-										id='accountName'
-										placeholder='Acme Inc.'
-									/>
-									{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-								</Field>
-							)}
-						/>
+		try {
+			const authRes = await axiosInstance.get<{ url: string }>('/integrations/salesforce/auth')
+			const authWindow = window.open(authRes.data.url, '_blank', 'width=600,height=800')
 
-						<Controller
-							name='firstName'
-							control={control}
-							render={({ field, fieldState }) => (
-								<Field data-invalid={fieldState.invalid}>
-									<Label htmlFor='firstName'>First Name</Label>
-									<Input
-										{...field}
-										id='firstName'
-										placeholder='John'
-									/>
-									{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-								</Field>
-							)}
-						/>
+			if (!authWindow) throw new Error('Unable to open Salesforce auth window')
 
-						<Controller
-							name='lastName'
-							control={control}
-							render={({ field, fieldState }) => (
-								<Field data-invalid={fieldState.invalid}>
-									<Label htmlFor='lastName'>Last Name</Label>
-									<Input
-										{...field}
-										id='lastName'
-										placeholder='Doe'
-									/>
-									{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-								</Field>
-							)}
-						/>
+			const interval = setInterval(() => {
+				if (authWindow.closed) {
+					clearInterval(interval)
+					connectMutation.mutate(data)
+				}
+			}, 500)
+		} catch (err) {
+			console.error('Salesforce connect error:', err)
+			setIsPending(false)
+		}
+	}
 
-						<Controller
-							name='email'
-							control={control}
-							render={({ field, fieldState }) => (
-								<Field data-invalid={fieldState.invalid}>
-									<Label htmlFor='email'>Email</Label>
-									<Input
-										{...field}
-										id='email'
-										type='email'
-										placeholder='john@example.com'
-									/>
-									{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-								</Field>
-							)}
-						/>
-					</FieldGroup>
-
-					<DialogFooter className='mt-4'>
-						<DialogClose asChild>
-							<Button variant='outline'>Cancel</Button>
-						</DialogClose>
-						<Button
-							type='submit'
-							disabled={isPending}
-						>
-							{isPending ? 'Connecting...' : 'Connect'}
-						</Button>
-					</DialogFooter>
-				</form>
-			</DialogContent>
-		</Dialog>
-	)
+	return {
+		onSubmit,
+		isPending,
+		handleSubmit: (fn: any) => (e: any) => {
+			e.preventDefault()
+			fn(e)
+		}
+	}
 }

@@ -1,41 +1,60 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import axios from 'axios'
-import { useForm } from 'react-hook-form'
-import toast from 'react-hot-toast'
+'use client'
 
-import { useConnectSalesforce } from './useConnectSalesforce'
-import { SalesforceSchema, TSalesforceForm } from '@/schemas/salesforce.schema'
+import { useMutation } from '@tanstack/react-query'
+import { useState } from 'react'
 
-export function useSalesForceForm(onClose: () => void) {
-	const { mutate, isPending } = useConnectSalesforce()
+import { axiosInstance } from '@/api/axios'
 
-	const form = useForm<TSalesforceForm>({
-		resolver: zodResolver(SalesforceSchema),
-		defaultValues: {
-			accountName: '',
-			firstName: '',
-			lastName: '',
-			email: ''
-		}
+interface ISalesforcePayload {
+	accountName: string
+	firstName: string
+	lastName: string
+	email: string
+}
+
+export function useSalesForceForm(onSuccess: () => void) {
+	const [isPending, setIsPending] = useState(false)
+
+	const connectMutation = useMutation({
+		mutationKey: ['salesforce-connect'],
+		mutationFn: async (data: ISalesforcePayload) => {
+			const res = await axiosInstance.post('/integrations/salesforce/user', data)
+			return res.data
+		},
+		onSuccess: () => {
+			setIsPending(false)
+			onSuccess()
+		},
+		onError: () => setIsPending(false)
 	})
 
-	const onSubmit = (data: TSalesforceForm) => {
-		mutate(data, {
-			onSuccess: () => {
-				onClose()
-				toast.success('Salesforce connection created successfully')
-			},
-			onError(error) {
-				if (axios.isAxiosError(error)) {
-					toast.error(error.response?.data?.message ?? 'Salesforce connection error')
+	const onSubmit = async (data: ISalesforcePayload) => {
+		setIsPending(true)
+
+		try {
+			const authRes = await axiosInstance.get<{ url: string }>('/integrations/salesforce/auth')
+			const authWindow = window.open(authRes.data.url, '_blank', 'width=600,height=800')
+
+			if (!authWindow) throw new Error('Unable to open Salesforce auth window')
+
+			const interval = setInterval(() => {
+				if (authWindow.closed) {
+					clearInterval(interval)
+					connectMutation.mutate(data)
 				}
-			}
-		})
+			}, 500)
+		} catch (err) {
+			console.error('Salesforce connect error:', err)
+			setIsPending(false)
+		}
 	}
 
 	return {
-		...form,
 		onSubmit,
-		isPending
+		isPending,
+		handleSubmit: (fn: any) => (e: any) => {
+			e.preventDefault()
+			fn(e)
+		}
 	}
 }
