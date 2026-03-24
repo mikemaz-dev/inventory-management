@@ -1,60 +1,46 @@
 'use client'
 
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 import { axiosInstance } from '@/api/axios'
 
-interface ISalesforcePayload {
-	accountName: string
-	firstName: string
-	lastName: string
-	email: string
-}
+import { SalesforceSchema } from '@/schemas/salesforce.schema'
+
+export type TSalesforceForm = z.infer<typeof SalesforceSchema>
 
 export function useSalesForceForm(onSuccess: () => void) {
-	const [isPending, setIsPending] = useState(false)
+	const form = useForm<TSalesforceForm>({
+		resolver: zodResolver(SalesforceSchema),
+		defaultValues: {
+			accountName: '',
+			firstName: '',
+			lastName: '',
+			email: ''
+		}
+	})
 
-	const connectMutation = useMutation({
-		mutationKey: ['salesforce-connect'],
-		mutationFn: async (data: ISalesforcePayload) => {
+	const mutation = useMutation({
+		mutationFn: async (data: TSalesforceForm) => {
 			const res = await axiosInstance.post('/integrations/salesforce/user', data)
 			return res.data
 		},
 		onSuccess: () => {
-			setIsPending(false)
+			form.reset()
 			onSuccess()
-		},
-		onError: () => setIsPending(false)
+		}
 	})
 
-	const onSubmit = async (data: ISalesforcePayload) => {
-		setIsPending(true)
-
-		try {
-			const authRes = await axiosInstance.get<{ url: string }>('/integrations/salesforce/auth')
-			const authWindow = window.open(authRes.data.url, '_blank', 'width=600,height=800')
-
-			if (!authWindow) throw new Error('Unable to open Salesforce auth window')
-
-			const interval = setInterval(() => {
-				if (authWindow.closed) {
-					clearInterval(interval)
-					connectMutation.mutate(data)
-				}
-			}, 500)
-		} catch (err) {
-			console.error('Salesforce connect error:', err)
-			setIsPending(false)
-		}
-	}
+	const onSubmit = form.handleSubmit(data => {
+		mutation.mutate(data)
+	})
 
 	return {
+		...form,
 		onSubmit,
-		isPending,
-		handleSubmit: (fn: any) => (e: any) => {
-			e.preventDefault()
-			fn(e)
-		}
+		isPending: mutation.isPending,
+		error: mutation.error
 	}
 }

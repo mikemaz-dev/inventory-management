@@ -32,7 +32,7 @@ export function SalesforceModal({ open, setOpen }: Props) {
 			onOpenChange={setOpen}
 		>
 			<DialogContent>
-				<form onSubmit={handleSubmit(onSubmit)}>
+				<form onSubmit={handleSubmit(() => onSubmit())}>
 					<DialogHeader className='mb-4'>
 						<DialogTitle>Connect Salesforce</DialogTitle>
 						<DialogDescription>
@@ -45,7 +45,6 @@ export function SalesforceModal({ open, setOpen }: Props) {
 							<Controller
 								key={field}
 								name={field}
-								control={{} as any}
 								render={({ field: f, fieldState }) => (
 									<Field data-invalid={fieldState?.invalid}>
 										<Label htmlFor={field}>{field.charAt(0).toUpperCase() + field.slice(1)}</Label>
