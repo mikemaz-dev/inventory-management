@@ -3,13 +3,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 
 import { axiosInstance } from '@/api/axios'
 
-import { SalesforceSchema } from '@/schemas/salesforce.schema'
-
-export type TSalesforceForm = z.infer<typeof SalesforceSchema>
+import { SalesforceSchema, type TSalesforceForm } from '@/schemas/salesforce.schema'
 
 export function useSalesForceForm(onSuccess: () => void) {
 	const form = useForm<TSalesforceForm>({
@@ -23,6 +20,7 @@ export function useSalesForceForm(onSuccess: () => void) {
 	})
 
 	const mutation = useMutation({
+		mutationKey: ['salesforce-connect'],
 		mutationFn: async (data: TSalesforceForm) => {
 			const res = await axiosInstance.post('/integrations/salesforce/user', data)
 			return res.data

@@ -2,21 +2,22 @@
 
 import { Controller } from 'react-hook-form'
 
-import { useSalesForceForm } from '@/hooks/integrations/useSalesForceForm'
-
-import { Button } from '../ui/button'
+import { Button } from '@/components/ui/button'
 import {
 	Dialog,
-	DialogClose,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle
-} from '../ui/dialog'
-import { Field, FieldError, FieldGroup } from '../ui/field'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
+} from '@/components/ui/dialog'
+import { Field, FieldError, FieldGroup } from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+
+import { useSalesForceForm } from '@/hooks/integrations/useSalesForceForm'
+
+import type { TSalesforceForm } from '@/schemas/salesforce.schema'
 
 interface Props {
 	open: boolean
@@ -24,7 +25,19 @@ interface Props {
 }
 
 export function SalesforceModal({ open, setOpen }: Props) {
-	const { handleSubmit, onSubmit, isPending } = useSalesForceForm(() => setOpen(false))
+	const { control, onSubmit, isPending } = useSalesForceForm(() => setOpen(false))
+
+	const fields: Array<{
+		name: keyof TSalesforceForm
+		label: string
+		placeholder: string
+		type?: string
+	}> = [
+		{ name: 'accountName', label: 'Account Name', placeholder: 'Acme Inc.' },
+		{ name: 'firstName', label: 'First Name', placeholder: 'John' },
+		{ name: 'lastName', label: 'Last Name', placeholder: 'Doe' },
+		{ name: 'email', label: 'Email', placeholder: 'john@example.com', type: 'email' }
+	]
 
 	return (
 		<Dialog
@@ -32,28 +45,30 @@ export function SalesforceModal({ open, setOpen }: Props) {
 			onOpenChange={setOpen}
 		>
 			<DialogContent>
-				<form onSubmit={handleSubmit(() => onSubmit())}>
+				<form onSubmit={onSubmit}>
 					<DialogHeader className='mb-4'>
 						<DialogTitle>Connect Salesforce</DialogTitle>
 						<DialogDescription>
-							Fill in the details to connect your Salesforce account.
+							Fill in the details to create Account and Contact in Salesforce.
 						</DialogDescription>
 					</DialogHeader>
 
 					<FieldGroup>
-						{['accountName', 'firstName', 'lastName', 'email'].map(field => (
+						{fields.map(({ name, label, placeholder, type = 'text' }) => (
 							<Controller
-								key={field}
-								name={field}
-								render={({ field: f, fieldState }) => (
-									<Field data-invalid={fieldState?.invalid}>
-										<Label htmlFor={field}>{field.charAt(0).toUpperCase() + field.slice(1)}</Label>
+								key={name}
+								name={name}
+								control={control}
+								render={({ field, fieldState }) => (
+									<Field data-invalid={!!fieldState.error}>
+										<Label htmlFor={name}>{label}</Label>
 										<Input
-											{...f}
-											id={field}
-											placeholder={field === 'email' ? 'john@example.com' : 'John'}
+											{...field}
+											id={name}
+											type={type}
+											placeholder={placeholder}
 										/>
-										{fieldState?.invalid && <FieldError errors={[fieldState.error]} />}
+										{fieldState.error && <FieldError errors={[fieldState.error]} />}
 									</Field>
 								)}
 							/>
@@ -61,9 +76,13 @@ export function SalesforceModal({ open, setOpen }: Props) {
 					</FieldGroup>
 
 					<DialogFooter className='mt-4'>
-						<DialogClose asChild>
-							<Button variant='outline'>Cancel</Button>
-						</DialogClose>
+						<Button
+							variant='outline'
+							type='button'
+							onClick={() => setOpen(false)}
+						>
+							Cancel
+						</Button>
 						<Button
 							type='submit'
 							disabled={isPending}
